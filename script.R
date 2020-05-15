@@ -1,4 +1,3 @@
-
 #Importation des données
 install.packages("rjson")
 library("rjson")
@@ -30,7 +29,7 @@ DonneesChaineYoutube$day<-1:366
 #Debut de l'analyse
 
 #Choix des variables
-Y<-unlist(DonneesChaineYoutube$views)#Variable à expliquer
+Y<-unlist(DonneesChaineYoutube$views)#Variable à expliquer : le nombre de vues par jour
 #Variables explicatives
 X1<-unlist(DonneesChaineYoutube$day)#Jours ecoules
 X2<-unlist(DonneesChaineYoutube$shares)#Partages par jour
@@ -51,36 +50,36 @@ NombreDeVuesSelonLeNombreDeLikesParJour<-plot(X4,Y,main = "Nombre de vues selon 
 #Regressions simples
 #Regression 1 - Vues selon Jours ecoules.
 #Premier modèle : linearisation d'une relation expontielle Y = B0.e^(B1X1) en un modèle du type ln Y = ln B0 + B1X1
-lnY<-log(Y)
-lnYlist<-as.list(lnY)
 
-
-varX1<-var(X1)#variance de X1
-CX1Y<-cov(lnY,X1,method = "spearman") #covariance de X1 et du logarithme de Y selon la methode de Spearman, car celui de Pearson implique de diviser par 0...
-
-#Calcul des estimateurs
-B1estime1<-CX1Y/varX1
-lnB0estime1<-logmean(Y)-B1estime1*mean(X1)
-#Verification graphique
-X1vslnY<-plot(X1,lnY)
-abline(lnB0estime1,B1estime1)
-
-lm(lnY~X1, na.action = "omit")
-
-#fonction pour retirer les valeurs nulles dans Y et les valeurs X1 correspondantes
+#fonction pour retirer les valeurs nulles et infinies dans lnY et les valeurs X1 correspondantes
+#car ln 0 est non defini
 deleteNaNvalues<-function(y,x1)
 {
-  NaNValues<-c(-Inf,Inf,0)
   newY<-vector(mode="numeric")
   newX1<-vector(mode="numeric")
-  indexesToDelelte<-c(which(y %in% -Inf), which(y %in% Inf),which(y %in% -0))
-  for (i in 1:length(y)) {
-    if()
-    newY<-y[y!=indexesToDelelte[i]]
-  }
+  indexesToDelete<-sort(c(which(y %in% -Inf), which(y %in% Inf),which(y %in% -0)))
+  newY<-y[-indexesToDelete]
+  newX1<-x1[-indexesToDelete]
   
-  return(list(newX1,newY,indexesToDelelte))
+  return(list(newX1,newY))
 }
 
-t<-deleteNaNvalues(lnY,X1)
+#on calcule lnY et puis on l'utilise
+lnY<-log(Y)
+X1<-deleteNaNvalues(lnY,X1)[[1]]
+lnY<-deleteNaNvalues(lnY,X1)[[2]]
+
+varX1<-var(X1)#variance de X1
+CX1Y<-cov(lnY,X1) #covariance de X1 et du logarithme de Y
+
+#Calcul des estimateurs
+B1estime1<-CX1Y/var(X1)
+lnB0estime1<-mean(lnY)-B1estime1*mean(X1)
+
+#Estimation de ln Y, puis de Y
+lnYestime1<-lnB0estime1+B1estime1*X1
+Yestime1<-exp(lnYestime1)
+
+#Second modèle : linearisation d'une relation puissance Y = B0.X1^(B1) en un modèle du type ln Y = ln B0 + B1.lnX1
+#
 
