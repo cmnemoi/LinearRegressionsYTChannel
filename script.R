@@ -75,11 +75,57 @@ CX1Y<-cov(lnY,X1) #covariance de X1 et du logarithme de Y
 #Calcul des estimateurs
 B1estime1<-CX1Y/var(X1)
 lnB0estime1<-mean(lnY)-B1estime1*mean(X1)
+B0estime1<-exp(lnB0estime1)
 
 #Estimation de ln Y, puis de Y
 lnYestime1<-lnB0estime1+B1estime1*X1
 Yestime1<-exp(lnYestime1)
 
 #Second modèle : linearisation d'une relation puissance Y = B0.X1^(B1) en un modèle du type ln Y = ln B0 + B1.lnX1
-#
+lnX1<-log(X1)
+
+#Calcul dela regression
+regressionLnYLnX1<-lm(lnY~lnX1)
+
+#On extrait les estimateurs
+lnB0estime2<-regressionLnYLnX1$coefficients[1]
+B0estime2<-exp(lnB0estime2)
+B1estime2<-regressionLnYLnX1$coefficients[2]
+
+#On calcule une estimation de Y
+lnYestime2<-lnB0estime2 + B1estime2*lnX1
+Yestime2<-exp(lnYestime2)
+
+#Regression 2 : Vues selon les partages quotidiens
+#On cherche un modèle Y = B0 + B1*X2
+regressionYX2<-lm(Y~X2)
+B0estime3<-regressionYX2$coefficients[1]
+B1estime3<-regressionYX2$coefficients[2]
+
+Yestime3<-B0estime3+B1estime3*X2
+
+#Regression 3 : Vues selon le nombre de minutes regardes quotidiennement
+
+regressionYX3<-lm(Y~X3)
+B0estime4<-regressionYX3$coefficients[1]
+B1estime4<-regressionYX3$coefficients[2]
+
+Yestime4<-B0estime4+B1estime4*X3
+
+
+#Regression 4 : Vues selon le nombre de likes quotidiens
+
+regressionYX4<-lm(Y~X4)
+B0estime5<-regressionYX4$coefficients[1]
+B1estime5<-regressionYX4$coefficients[2]
+
+Yestime5<-B0estime5+B1estime5*X4
+
+#Analyse des resultats
+#Visualisation graphique et premières conjectures
+
+#Regression 1
+#Modèle 1 : exponentiel
+plot(X1,Y,main = "Nombre de vues selon le nombre de jours écoulés",
+     xlab = "Jours écoulés",ylab = "Vues",pch=4,col="blue")
 
