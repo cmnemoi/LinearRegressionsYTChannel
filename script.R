@@ -280,9 +280,63 @@ seuilTheorique<-qt(alpha,n-2,lower.tail = FALSE)#2.32
 
 #Z_B1 < Z_0.01, on ne rejette donc pas H0 au seuil alpha = 1%. B0 est donc nul selon notre test, ce qui est rassurant.
 
-#Conclusion
+#Conclusion partie 1
 #minutes regardees predit très bien les vues > augmenter la duree de videos ? Faux, car correlation nest pas causalite. 
 #ce sont surement les vues qui entrainent plus de minutes regardes
 #jours ecoules nest pas un si bon indicateur, la perseverance seule ne paie pas...
-#inciter aux partages nest pas très efficace contrairement à ce quon pourrait croire
+#inciter aux partages nest pas très efficace contrairement à ce qu'on pourrait croire
 #likes non testes mais quasiment aussi efficace que les minutes pour predire le nombre de vues, correspond au prejuge bayesien sur lalgo youtube
+
+#Regression multiple
+#Construction de la matrice de regression
+n<-length(Y)
+q<-1+3
+ones<-rep(1,n)
+X<-matrix(c(ones,X2,X3,X4),ncol=q)
+
+Y<-matrix(Y)
+
+#Resolution de la regression
+BestimeM<-solve(t(X)%*%X)%*%t(X)%*%Y
+YestimeM<-X%*%BestimeM
+
+#Test global de linearite
+alpha<-1/100
+Fcalc<-(sum((YestimeM-mean(Y))^2)/q)/(sum((YestimeM-mean(Y))^2)/(n-q-1))#90.25
+Ftheorique<-qf(alpha,df1 = q,df2 = n-q--1,lower.tail = FALSE)#3.371206006
+#on rejette H0 avec 1% de se tromper : au moins l'un des Bi est non nul.
+
+#Tests de signifivativite des Bi
+varY_M<-sum((YestimeM-mean(Y))^2/(n-q-1))#67243.4159639
+varcov<-varY_M*solve((t(X)%*%X))#matrice variance-covariance
+sigmaBi<-sqrt(diag(varcov))#ecart type estimateurs des Bi
+
+Tcalc<-BestimeM/sigmaBi #statistiques de test
+Ttheroique<-qt(alpha,df=n-q-1,lower.tail = FALSE)#2.33675
+#on rejette H0 pour B2 uniquement au risque 1%.
+
+#on revient alors à une regression simple avec Y = B2*X3 uniquement, ce qui confirme nos hypothèses de la 1ère partie
+#jugeons tout de même en detail la qualite de cette regression multiple :
+
+#coefficient de correlation entre les variables
+variables<-data.frame(Y,X2,X3,X4)
+corX2X3X4Y<-cor(variables)
+#coeff entre variables fortes, l'une doit expliquer les autres, probablement X3
+
+#dispersion et coefficient de determination
+sCtot<-sum((Y-mean(Y))^2)#Dispersion observee de Y
+sCregM<-sum((YestimeM-mean(Y))^2)#Dispersion restitue par le modèle
+
+#Coefficient de correlation
+R2_M<-sCregM/sCtot#0.9929181
+#très eleve, ce qui est logique en considerant quil revient à une regression simple
+
+#Calcul des residus
+residusM<-c(Y-YestimeM)
+summary(residusM)
+
+#Somme des carres des residus
+sCresM<-sum(residusM^2)#24274873.1629698
+
+#rappel des statistiques du Y observee
+summary(Y)
