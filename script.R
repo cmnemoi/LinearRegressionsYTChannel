@@ -126,6 +126,71 @@ Yestime5<-B0estime5+B1estime5*X4
 
 #Regression 1
 #Modèle 1 : exponentiel
+X1<-unlist(DonneesChaineYoutube$day)
 plot(X1,Y,main = "Nombre de vues selon le nombre de jours écoulés",
      xlab = "Jours écoulés",ylab = "Vues",pch=4,col="blue")
+curve(B0estime1*exp(B1estime1*x),col="red")
 
+#Modèle 2 : puissance
+curve(B0estime2*x^(B1estime2),col="green")
+
+plot(lnX1,lnY)
+curve(2*x,add=TRUE,col="green")
+
+#Regression 2
+plot(X2,Y,main = "Nombre de vues selon le nombre de partages par jour",
+     xlab = "Partages",ylab = "Vues",pch=4,col="blue")
+curve(B0estime3+B1estime3*x,add = TRUE,col="red")
+
+#Regression 3
+plot(X3,Y,main = "Nombre de vues selon le nombre de minutes regardées par jour",
+     xlab = "Minutes regardées",ylab = "Vues",pch=4,col="blue")
+curve(B0estime4+B1estime4*x,add = TRUE,col="red")
+
+#Regression 4
+plot(X4,Y,main = "Nombre de vues selon le nombre de likes par jour",
+     xlab = "Likes",ylab = "Vues",pch=4,col="blue")
+curve(B0estime5+B1estime5*x,add = TRUE,col="red")
+
+#Indicateurs de performance des modelisations
+#Coefficients de correlation
+
+#Regression 1 - Modèle exponentiel
+rho1X1Y<-cor(lnY,X1)#0.6532197
+
+#Regression 1 - Modèle puissance
+rho2X1Y<-cor(lnY,lnX1)#0.50821528
+
+#Regression 2
+rhoX2Y<-cor(Y,X2)#0.37886849
+
+#Regression 3
+rhoX3Y<-cor(Y,X3)#0.99629185
+
+#Regression 4
+rhoX4Y<-cor(Y,X4)#0.91838271
+
+
+#Calcul des residus
+
+#Regression 1 - Modèle exponentiel
+lnresidus1<-lnYestime1-lnY
+residus1<-exp(lnresidus1)
+r1<-summary(residus1)
+
+#Regression 1 - Modèle puissance
+lnresidus2<-lnYestime2-lnY
+residus2<-exp(lnresidus2)
+r2<-summary(residus2);r2
+
+#Regression 2
+residus3<-Y-Yestime3
+r3<-summary(residus3);r3
+
+#Regression 3
+residus4<-Y-Yestime4
+r4<-summary(residus4);r4
+
+#Regression 4
+residus5<-Y-Yestime5
+r5<-summary(residus5);r5
