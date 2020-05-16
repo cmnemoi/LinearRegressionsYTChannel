@@ -171,26 +171,118 @@ rhoX3Y<-cor(Y,X3)#0.99629185
 rhoX4Y<-cor(Y,X4)#0.91838271
 
 
-#Calcul des residus
+#Calcul des residus et de la somme de leurs carres
 
 #Regression 1 - Modèle exponentiel
 lnresidus1<-lnYestime1-lnY
 residus1<-exp(lnresidus1)
 r1<-summary(residus1)
+sCres1<-sum(residus1^2)#550.98
 
 #Regression 1 - Modèle puissance
 lnresidus2<-lnYestime2-lnY
 residus2<-exp(lnresidus2)
 r2<-summary(residus2);r2
+sCres2<-sum(residus2^2)
 
 #Regression 2
 residus3<-Y-Yestime3
 r3<-summary(residus3);r3
+sCres3<-sum(residus3^2)
 
 #Regression 3
 residus4<-Y-Yestime4
 r4<-summary(residus4);r4
+sCres4<-sum(residus4^2)
 
 #Regression 4
 residus5<-Y-Yestime5
 r5<-summary(residus5);r5
+sCres5<-sum(residus5^2)
+
+statistiquesY<-summary(Y);statistiquesY
+
+#Dispersion et coefficient de determination
+#Calcul des dispersions
+
+sCtot<-sum((Y-mean(Y))^2)#Dispersion observee de Y
+
+sCreg1<-sum((Yestime1-mean(Y))^2)
+sCreg2<-sum((Yestime2-mean(Y))^2)
+sCreg3<-sum((Yestime3-mean(Y))^2)
+sCreg4<-sum((Yestime4-mean(Y))^2)
+sCreg5<-sum((Yestime5-mean(Y))^2)
+
+#Coefficients de determination
+R2_1<-sCreg1/sCtot
+R2_2<-sCreg2/sCtot
+R2_3<-sCreg3/sCtot
+R2_4<-sCreg4/sCtot
+R2_5<-sCreg5/sCtot
+
+#Tests de signifivativite
+#Regression 1 : modèle exponentiel
+
+X<-X1
+n<-length(lnY) #nombre d'observations
+B0<-B0estime1
+B1<-B1estime1
+Yestime<-Yestime1
+R2<-R2_1
+
+varY<-sum((Yestime-mean(Y))^2)/(n-2) #variance de Y
+varX<-var(X)
+varB1<-varY/(n*varX)
+varB0<-varY/n*(1+mean(X)^2/varX)
+
+#Test de significativite de B1 : on veut tester H0 B1 = 0 contre J1 B1 =/= 0 au seuil 1%
+alpha<-1/100
+Z_B1<-B1/sqrt(varB1)#0.31259
+
+seuilTheorique<-qt(alpha,n-2,lower.tail = FALSE)#2.32
+
+#Z_B1 < Z_0.01, on ne rejette donc pas H0 au seuil alpha = 1%. B1 est donc nul selon notre test. ce nest pas etonnant en effet
+
+#Test de significativite de B0 : on veut tester H0 B0 = 0 contre J1 B0 =/= 0 au seuil 1%
+alpha<-1/100
+Z_B0<-B0/sqrt(varB0)#0.423
+
+#Z_B1 < Z_0.01, on ne rejette donc pas H0 au seuil alpha = 1%. B0 est donc nul selon notre test, ce que je trouve etonnant.
+
+
+#Regression 3
+X<-X3
+n<-length(lnY) #nombre d'observations
+B0<-B0estime4
+B1<-B1estime4
+Yestime<-Yestime4
+R2<-R2_4
+
+varY<-sum((Yestime-mean(Y))^2)/(n-2) #variance de Y
+varX<-var(X)
+varB1<-varY/(n*varX)
+varB0<-varY/n*(1+mean(X)^2/varX)
+
+#Test de significativite de B1 : on veut tester H0 B1 = 0 contre J1 B1 =/= 0 au seuil 1%
+alpha<-1/100
+Z_B1<-B1/sqrt(varB1)#18.1
+
+seuilTheorique<-qt(alpha,n-2,lower.tail = FALSE)#2.32
+
+#Z_B1 > Z_0.01, on ne rejette donc H0 avec une probabilite de 1% de se tromper
+#B1 est donc significatif dans notre modèle selon notre test
+
+#Test de significativite de B0 : on veut tester H0 B0 = 0 contre J1 B0 =/= 0 au seuil 1%
+alpha<-1/100
+Z_B0<-B0/sqrt(varB0)#0.31
+
+seuilTheorique<-qt(alpha,n-2,lower.tail = FALSE)#2.32
+
+#Z_B1 < Z_0.01, on ne rejette donc pas H0 au seuil alpha = 1%. B0 est donc nul selon notre test, ce qui est rassurant.
+
+#Conclusion
+#minutes regardees predit très bien les vues > augmenter la duree de videos ? Faux, car correlation nest pas causalite. 
+#ce sont surement les vues qui entrainent plus de minutes regardes
+#jours ecoules nest pas un si bon indicateur, la perseverance seule ne paie pas...
+#inciter aux partages nest pas très efficace contrairement à ce quon pourrait croire
+#likes non testes mais quasiment aussi efficace que les minutes pour predire le nombre de vues, correspond au prejuge bayesien sur lalgo youtube
