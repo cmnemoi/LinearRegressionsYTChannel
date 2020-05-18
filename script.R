@@ -38,14 +38,15 @@ X4<-unlist(DonneesChaineYoutube$likes)#Nombre de likes par jour
 
 
 #Creation des graphiques
+par(mfrow=c(2,2))
 NombreDeVuesSelonLeNombreDeJoursEcoules<-plot(X1,Y,main = "Nombre de vues selon le nombre de jours écoulés",
                                               xlab = "Jours écoulés",ylab = "Vues",pch=4,col="red")
-NombreDeVuesSelonLeNombreDePartagesParJour<-plot(X2,Y,main = "Nombre de vues selon le nombre de partages par jour",
-                                              xlab = "Partages",ylab = "Vues",pch=4,col="red")
-NombreDeVuesSelonLeNombreDeMinutesRegardeesParJour<-plot(X3,Y,main = "Nombre de vues selon le nombre de minutes regardées par jour",
-                                                 xlab = "Minutes regardées",ylab = "Vues",pch=4,col="red")
-NombreDeVuesSelonLeNombreDeLikesParJour<-plot(X4,Y,main = "Nombre de vues selon le nombre de likes par jour",
-                                                         xlab = "Likes",ylab = "Vues",pch=4,col="red")
+NombreDeVuesSelonLeNombreDePartagesParJour<-plot(X2,Y,main = "Nombre de vues selon le nombre de partages",
+                                              xlab = "Partages",ylab = "Vues",pch=4,col="blue")
+NombreDeVuesSelonLeNombreDeMinutesRegardeesParJour<-plot(X3,Y,main = "Nombre de vues selon les minutes regardées",
+                                                 xlab = "Minutes regardées",ylab = "Vues",pch=4,col="green")
+NombreDeVuesSelonLeNombreDeLikesParJour<-plot(X4,Y,main = "Nombre de vues selon le nombre de likes",
+                                                         xlab = "Likes",ylab = "Vues",pch=4,col="orange")
 
 #Regressions simples
 #Regression 1 - Vues selon Jours ecoules.
@@ -124,31 +125,33 @@ Yestime5<-B0estime5+B1estime5*X4
 #Analyse des resultats
 #Visualisation graphique et premières conjectures
 
+par(mfrow=c(2,2))
+
 #Regression 1
 #Modèle 1 : exponentiel
 X1<-unlist(DonneesChaineYoutube$day)
-plot(X1,Y,main = "Nombre de vues selon le nombre de jours écoulés",
+plot(X1,Y,main = "Nombre de vues selon les jours écoulés",
      xlab = "Jours écoulés",ylab = "Vues",pch=4,col="blue")
-curve(B0estime1*exp(B1estime1*x),col="red")
+curve(B0estime1*exp(B1estime1*x),col="red",add=TRUE)
 
 #Modèle 2 : puissance
-curve(B0estime2*x^(B1estime2),col="green")
+#curve(B0estime2*x^(B1estime2),col="green")
 
-plot(lnX1,lnY)
-curve(2*x,add=TRUE,col="green")
+#plot(lnX1,lnY)
+#curve(2*x,add=TRUE,col="green")
 
 #Regression 2
-plot(X2,Y,main = "Nombre de vues selon le nombre de partages par jour",
+plot(X2,Y,main = "Nombre de vues selon les partages",
      xlab = "Partages",ylab = "Vues",pch=4,col="blue")
 curve(B0estime3+B1estime3*x,add = TRUE,col="red")
 
 #Regression 3
-plot(X3,Y,main = "Nombre de vues selon le nombre de minutes regardées par jour",
+plot(X3,Y,main = "Nombre de vues selon les minutes regardées",
      xlab = "Minutes regardées",ylab = "Vues",pch=4,col="blue")
 curve(B0estime4+B1estime4*x,add = TRUE,col="red")
 
 #Regression 4
-plot(X4,Y,main = "Nombre de vues selon le nombre de likes par jour",
+plot(X4,Y,main = "Nombre de vues selon les likes",
      xlab = "Likes",ylab = "Vues",pch=4,col="blue")
 curve(B0estime5+B1estime5*x,add = TRUE,col="red")
 
@@ -176,14 +179,14 @@ rhoX4Y<-cor(Y,X4)#0.91838271
 #Regression 1 - Modèle exponentiel
 lnresidus1<-lnYestime1-lnY
 residus1<-exp(lnresidus1)
-r1<-summary(residus1)
+r1<-summary(residus1);r1
 sCres1<-sum(residus1^2)#550.98
 
 #Regression 1 - Modèle puissance
-lnresidus2<-lnYestime2-lnY
-residus2<-exp(lnresidus2)
-r2<-summary(residus2);r2
-sCres2<-sum(residus2^2)
+#lnresidus2<-lnYestime2-lnY
+#residus2<-exp(lnresidus2)
+#r2<-summary(residus2);r2
+#sCres2<-sum(residus2^2)
 
 #Regression 2
 residus3<-Y-Yestime3
@@ -207,7 +210,7 @@ statistiquesY<-summary(Y);statistiquesY
 
 sCtot<-sum((Y-mean(Y))^2)#Dispersion observee de Y
 
-sCreg1<-sum((Yestime1-mean(Y))^2)
+sCreg1<-sum((Yestime1-mean(Y))^2);sc
 sCreg2<-sum((Yestime2-mean(Y))^2)
 sCreg3<-sum((Yestime3-mean(Y))^2)
 sCreg4<-sum((Yestime4-mean(Y))^2)
@@ -252,7 +255,7 @@ Z_B0<-B0/sqrt(varB0)#0.423
 
 #Regression 3
 X<-X3
-n<-length(lnY) #nombre d'observations
+n<-length(Y) #nombre d'observations
 B0<-B0estime4
 B1<-B1estime4
 Yestime<-Yestime4
@@ -265,18 +268,18 @@ varB0<-varY/n*(1+mean(X)^2/varX)
 
 #Test de significativite de B1 : on veut tester H0 B1 = 0 contre J1 B1 =/= 0 au seuil 1%
 alpha<-1/100
-Z_B1<-B1/sqrt(varB1)#18.1
+T_B1<-B1/sqrt(varB1)#19.1
 
-seuilTheorique<-qt(alpha,n-2,lower.tail = FALSE)#2.32
+TTheorique<-qt(alpha,n-2,lower.tail = FALSE)#2.336
 
-#Z_B1 > Z_0.01, on ne rejette donc H0 avec une probabilite de 1% de se tromper
+#Z_B1 > Z_0.01, on rejette donc H0 avec une probabilite de 1% de se tromper
 #B1 est donc significatif dans notre modèle selon notre test
 
 #Test de significativite de B0 : on veut tester H0 B0 = 0 contre J1 B0 =/= 0 au seuil 1%
 alpha<-1/100
-Z_B0<-B0/sqrt(varB0)#0.31
+T_B0<-B0/sqrt(varB0)#0.327
 
-seuilTheorique<-qt(alpha,n-2,lower.tail = FALSE)#2.32
+TTheorique<-qt(alpha,n-2,lower.tail = FALSE)#2.336
 
 #Z_B1 < Z_0.01, on ne rejette donc pas H0 au seuil alpha = 1%. B0 est donc nul selon notre test, ce qui est rassurant.
 
@@ -292,27 +295,34 @@ seuilTheorique<-qt(alpha,n-2,lower.tail = FALSE)#2.32
 n<-length(Y)
 q<-1+3
 ones<-rep(1,n)
-X<-matrix(c(ones,X2,X3,X4),ncol=q)
+X<-matrix(c(ones,X2,X3,X4),ncol=q);head(X)
 
-Y<-matrix(Y)
+Y<-matrix(Y);head(Y)
 
 #Resolution de la regression
-BestimeM<-solve(t(X)%*%X)%*%t(X)%*%Y
+BestimeM<-solve(t(X)%*%X)%*%t(X)%*%Y;BestimeM
 YestimeM<-X%*%BestimeM
 
 #Test global de linearite
 alpha<-1/100
-Fcalc<-(sum((YestimeM-mean(Y))^2)/q)/(sum((YestimeM-mean(Y))^2)/(n-q-1))#90.25
-Ftheorique<-qf(alpha,df1 = q,df2 = n-q--1,lower.tail = FALSE)#3.371206006
+Fcalc<-(sum((YestimeM-mean(Y))^2)/q)/(sum((YestimeM-mean(Y))^2)/(n-q-1))
+#>90.25
+Ftheorique<-qf(alpha,df1 = q,df2 = n-q-1,lower.tail = FALSE)
+#>3.371496
 #on rejette H0 avec 1% de se tromper : au moins l'un des Bi est non nul.
 
-#Tests de signifivativite des Bi
-varY_M<-sum((YestimeM-mean(Y))^2/(n-q-1))#67243.4159639
+#Tests de signifivativité des Bi
+
+varY_M<-sum((YestimeM-mean(Y))^2/(n-q-1))#variance de Y
+#>67243.4159639
+
 varcov<-varY_M*solve((t(X)%*%X))#matrice variance-covariance
 sigmaBi<-sqrt(diag(varcov))#ecart type estimateurs des Bi
 
-Tcalc<-BestimeM/sigmaBi #statistiques de test
-Ttheroique<-qt(alpha,df=n-q-1,lower.tail = FALSE)#2.33675
+#statistiques de test
+Tcalc<-BestimeM/sigmaBi;Tcalc
+Ttheroique<-qt(alpha,df=n-q-1,lower.tail = FALSE)
+#>2.33675
 #on rejette H0 pour B2 uniquement au risque 1%.
 
 #on revient alors à une regression simple avec Y = B2*X3 uniquement, ce qui confirme nos hypothèses de la 1ère partie
@@ -320,7 +330,7 @@ Ttheroique<-qt(alpha,df=n-q-1,lower.tail = FALSE)#2.33675
 
 #coefficient de correlation entre les variables
 variables<-data.frame(Y,X2,X3,X4)
-corX2X3X4Y<-cor(variables)
+corX2X3X4Y<-cor(variables);corX2X3X4Y
 #coeff entre variables fortes, l'une doit expliquer les autres, probablement X3
 
 #dispersion et coefficient de determination
@@ -331,12 +341,13 @@ sCregM<-sum((YestimeM-mean(Y))^2)#Dispersion restitue par le modèle
 R2_M<-sCregM/sCtot#0.9929181
 #très eleve, ce qui est logique en considerant quil revient à une regression simple
 
-#Calcul des residus
+#Calcul des résidus
 residusM<-c(Y-YestimeM)
 summary(residusM)
 
-#Somme des carres des residus
-sCresM<-sum(residusM^2)#24274873.1629698
+#Somme des carrés des résidus
+sCresM<-sum(residusM^2)
+#>24274873.1629698
 
-#rappel des statistiques du Y observee
+#rappel des statistiques du Y observées
 summary(Y)
